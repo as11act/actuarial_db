@@ -7,7 +7,9 @@ select	1,'Date of operation' union all
 select	2,'Insurance contract ID' union all
 select	3,'Insurance risk ID';
 
-/*	insert	*/
+/*	insert base accounts of insurance premuim journal	*/
+insert into public._config_accounts
+select	1,'Gross Written Premium';
 
 /*	insert columns of journal	*/
 insert into public._config_journal_columns (id_jur,column_name,id_account,id_analytic) 
