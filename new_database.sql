@@ -22,7 +22,7 @@ CREATE TABLE public._config_journals (
 
 );
 -- ddl-end --
-COMMENT ON TABLE public._config_journals IS E'Configuration table of meta-data of journals';
+COMMENT ON TABLE public._config_journals IS E'Configuration table: list of journals';
 -- ddl-end --
 -- ALTER TABLE public._config_journals OWNER TO postgres;
 -- ddl-end --
@@ -35,9 +35,12 @@ CREATE TABLE public._config_journal_columns (
 	column_name varchar(500) NOT NULL,
 	id_account bigint,
 	id_analytic bigint,
-	CONSTRAINT _config_journal_columns_pk PRIMARY KEY (id_col)
+	CONSTRAINT _config_journal_columns_pk PRIMARY KEY (id_col),
+	CONSTRAINT _check_config_journals_id_analytic_account CHECK (id_account is not NULL and id_analytic is NULL or id_account is NULL and id_analytic is not NULL)
 
 );
+-- ddl-end --
+COMMENT ON TABLE public._config_journal_columns IS E'Configuration table: columns of particular journal. Also each column has information about - analytic or account';
 -- ddl-end --
 -- ALTER TABLE public._config_journal_columns OWNER TO postgres;
 -- ddl-end --
