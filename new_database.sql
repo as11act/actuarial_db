@@ -1,17 +1,19 @@
 -- Database generated with pgModeler (PostgreSQL Database Modeler).
--- pgModeler  version: 0.9.2
--- PostgreSQL version: 12.0
+-- pgModeler  version: 0.9.3-beta1
+-- PostgreSQL version: 13.0
 -- Project Site: pgmodeler.io
--- Model Author: ---
+-- Model Author: Andrey Suvorov
 
-
--- Database creation must be done outside a multicommand file.
+-- Database creation must be performed outside a multi lined SQL file. 
 -- These commands were put in this file only as a convenience.
--- -- object: new_database | type: DATABASE --
--- -- DROP DATABASE IF EXISTS new_database;
--- CREATE DATABASE new_database;
--- -- ddl-end --
 -- 
+-- object: db_journals | type: DATABASE --
+-- DROP DATABASE IF EXISTS db_journals;
+CREATE DATABASE db_journals;
+-- ddl-end --
+COMMENT ON DATABASE db_journals IS E'Database with journals';
+-- ddl-end --
+
 
 -- object: public._config_journals | type: TABLE --
 -- DROP TABLE IF EXISTS public._config_journals CASCADE;
@@ -24,7 +26,7 @@ CREATE TABLE public._config_journals (
 -- ddl-end --
 COMMENT ON TABLE public._config_journals IS E'Configuration table: list of journals';
 -- ddl-end --
--- ALTER TABLE public._config_journals OWNER TO postgres;
+ALTER TABLE public._config_journals OWNER TO postgres;
 -- ddl-end --
 
 -- object: public._config_journal_columns | type: TABLE --
@@ -42,7 +44,7 @@ CREATE TABLE public._config_journal_columns (
 -- ddl-end --
 COMMENT ON TABLE public._config_journal_columns IS E'Configuration table: columns of particular journal. Also each column has information about - analytic or account';
 -- ddl-end --
--- ALTER TABLE public._config_journal_columns OWNER TO postgres;
+ALTER TABLE public._config_journal_columns OWNER TO postgres;
 -- ddl-end --
 
 -- object: public._config_accounts | type: TABLE --
@@ -54,7 +56,7 @@ CREATE TABLE public._config_accounts (
 
 );
 -- ddl-end --
--- ALTER TABLE public._config_accounts OWNER TO postgres;
+ALTER TABLE public._config_accounts OWNER TO postgres;
 -- ddl-end --
 
 -- object: public._config_analytics | type: TABLE --
@@ -66,7 +68,7 @@ CREATE TABLE public._config_analytics (
 
 );
 -- ddl-end --
--- ALTER TABLE public._config_analytics OWNER TO postgres;
+ALTER TABLE public._config_analytics OWNER TO postgres;
 -- ddl-end --
 
 -- object: fk_config_journal_columns_id_jur | type: CONSTRAINT --
