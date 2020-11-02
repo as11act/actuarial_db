@@ -2,14 +2,16 @@
 -- pgModeler  version: 0.9.3-beta1
 -- PostgreSQL version: 13.0
 -- Project Site: pgmodeler.io
--- Model Author: ---
+-- Model Author: Andrey Suvorov
 
 -- Database creation must be performed outside a multi lined SQL file. 
 -- These commands were put in this file only as a convenience.
 -- 
--- object: new_database | type: DATABASE --
--- DROP DATABASE IF EXISTS new_database;
-CREATE DATABASE new_database;
+-- object: db_journals | type: DATABASE --
+-- DROP DATABASE IF EXISTS db_journals;
+CREATE DATABASE db_journals;
+-- ddl-end --
+COMMENT ON DATABASE db_journals IS E'Database with journals';
 -- ddl-end --
 
 
