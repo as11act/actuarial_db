@@ -67,7 +67,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</constraint>
 </table>
 
-<table name="_config_accounts" layer="0" collapse-mode="2" max-obj-count="4" z-value="0">
+<table name="_config_accounts" layer="0" collapse-mode="2" max-obj-count="6" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
 	<position x="600" y="60"/>
@@ -86,6 +86,10 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		<type name="varchar" length="500"/>
 		<comment><![CDATA[Finance type - flow or reserve]]></comment>
 	</column>
+	<column name="account_column_name" default-value="replace(lower(account_name),' ','_')" generated="true">
+		<type name="smallint" length="0"/>
+		<comment><![CDATA[Column name of account to use in stage table journal]]></comment>
+	</column>
 	<constraint name="_config_accounts_pk" type="pk-constr" table="public._config_accounts">
 		<columns names="id_account" ref-type="src-columns"/>
 	</constraint>
@@ -97,7 +101,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</constraint>
 </table>
 
-<table name="_config_analytics" layer="0" collapse-mode="2" max-obj-count="4" z-value="0">
+<table name="_config_analytics" layer="0" collapse-mode="2" max-obj-count="6" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
 	<position x="780" y="260"/>
@@ -115,6 +119,10 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="type_value" not-null="true">
 		<type name="varchar" length="500"/>
 		<comment><![CDATA[Type value of column analytic]]></comment>
+	</column>
+	<column name="analytic_column_name" default-value="replace(lower(analytic_name),' ','_')" generated="true">
+		<type name="varchar" length="500"/>
+		<comment><![CDATA[Column name of analytic in stage journal]]></comment>
 	</column>
 	<constraint name="_config_analytic_pk" type="pk-constr" table="public._config_analytics">
 		<columns names="id_analytic" ref-type="src-columns"/>
