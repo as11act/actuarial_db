@@ -41,3 +41,19 @@ select	2,'sum_float2' union all
 select	2,'d_opr2' union all
 select	2,'contract_id2' union all
 select	2,'risk_id2';
+
+/*	link sources to journals	*/
+insert into public._config_journal_column_match_source_column
+select	(case 
+		 	when	c.column_name in ('sum_float','sum_float2') then (select id_col_jur from public._config_journal_columns where id_jur=1 and column_name='prem_value')
+		 	when	c.column_name in ('d_opr','d_opr2') then (select id_col_jur from public._config_journal_columns where id_jur=1 and column_name='date_operation')
+		 	when	c.column_name in ('contract_id','contract_id2') then (select id_col_jur from public._config_journal_columns where id_jur=1 and column_name='id_contract')
+		 	when	c.column_name in ('risk_id','risk_id2') then (select id_col_jur from public._config_journal_columns where id_jur=1 and column_name='id_risk')
+		 end) id_col_jur,c.id_col_src
+from	_config_source_columns c
+
+SELECT m.id_col_jur, m.id_col_src,jc.*,sc.*
+	FROM public._config_journal_column_match_source_column m
+	left join public._config_journal_columns jc on jc.id_col_jur=m.id_col_jur
+	left join public._config_source_columns sc on sc.id_col_src=m.id_col_src
+order by jc.column_name	

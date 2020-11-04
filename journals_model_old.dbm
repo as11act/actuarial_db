@@ -3,7 +3,7 @@
 CAUTION: Do not modify this file unless you know what you are doing.
          Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="0.9.3-beta1" use-changelog="false" author="Andrey Suvorov" last-position="111,0" last-zoom="1" max-obj-count="15"
+<dbmodel pgmodeler-ver="0.9.3-beta1" use-changelog="false" author="Andrey Suvorov" last-position="111,270" last-zoom="1" max-obj-count="15"
 	 default-schema="public" default-owner="postgres">
 <database name="db_journals" is-template="false" allow-conns="true">
 	<comment><![CDATA[Database with journals]]></comment>
@@ -67,13 +67,16 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</constraint>
 </table>
 
-<table name="_config_accounts" layer="0" collapse-mode="2" max-obj-count="3" z-value="0">
+<table name="_config_accounts" layer="0" collapse-mode="2" max-obj-count="6" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
 	<position x="600" y="60"/>
 	<column name="id_account" not-null="true"
 	 identity-type="ALWAYS">
 		<type name="bigint" length="500"/>
+	</column>
+	<column name="account_name" not-null="true">
+		<type name="varchar" length="500"/>
 	</column>
 	<column name="account_description" not-null="true">
 		<type name="varchar" length="1000"/>
@@ -83,21 +86,31 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		<type name="varchar" length="500"/>
 		<comment><![CDATA[Finance type - flow or reserve]]></comment>
 	</column>
+	<column name="account_column_name" default-value="replace(lower(account_name),' ','_')" generated="true">
+		<type name="smallint" length="0"/>
+		<comment><![CDATA[Column name of account to use in stage table journal]]></comment>
+	</column>
 	<constraint name="_config_accounts_pk" type="pk-constr" table="public._config_accounts">
 		<columns names="id_account" ref-type="src-columns"/>
 	</constraint>
 	<constraint name="ch_config_accounts_finance_type" type="ck-constr" table="public._config_accounts">
 			<expression><![CDATA[finance_type in ('flow','reserve')]]></expression>
 	</constraint>
+	<constraint name="uq__config_accounts" type="uq-constr" table="public._config_accounts">
+		<columns names="account_name" ref-type="src-columns"/>
+	</constraint>
 </table>
 
-<table name="_config_analytics" layer="0" collapse-mode="2" max-obj-count="3" z-value="0">
+<table name="_config_analytics" layer="0" collapse-mode="2" max-obj-count="6" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
 	<position x="780" y="260"/>
 	<column name="id_analytic" not-null="true"
 	 identity-type="ALWAYS">
 		<type name="bigint" length="0"/>
+	</column>
+	<column name="analytic_name" not-null="true">
+		<type name="varchar" length="500"/>
 	</column>
 	<column name="analytic_description" not-null="true">
 		<type name="varchar" length="2000"/>
@@ -107,8 +120,15 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		<type name="varchar" length="500"/>
 		<comment><![CDATA[Type value of column analytic]]></comment>
 	</column>
+	<column name="analytic_column_name" default-value="replace(lower(analytic_name),' ','_')" generated="true">
+		<type name="varchar" length="500"/>
+		<comment><![CDATA[Column name of analytic in stage journal]]></comment>
+	</column>
 	<constraint name="_config_analytic_pk" type="pk-constr" table="public._config_analytics">
 		<columns names="id_analytic" ref-type="src-columns"/>
+	</constraint>
+	<constraint name="uq__config_analytics" type="uq-constr" table="public._config_analytics">
+		<columns names="analytic_name" ref-type="src-columns"/>
 	</constraint>
 	<constraint name="ck_config_analytics_type_value" type="ck-constr" table="public._config_analytics">
 			<expression><![CDATA[type_value in ('float','string','date')]]></expression>
