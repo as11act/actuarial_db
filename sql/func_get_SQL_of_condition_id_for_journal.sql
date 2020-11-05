@@ -1,9 +1,10 @@
--- FUNCTION: public.func_get_SQL_of_condition_id(bigint)
+-- FUNCTION: public.func_get_SQL_of_condition_id_for_journal(bigint, bigint)
 
--- DROP FUNCTION public."func_get_SQL_of_condition_id"(bigint);
+-- DROP FUNCTION public."func_get_SQL_of_condition_id_for_journal"(bigint, bigint);
 
-CREATE OR REPLACE FUNCTION public."func_get_SQL_of_condition_id"(
-	id_condition bigint)
+CREATE OR REPLACE FUNCTION public."func_get_SQL_of_condition_id_for_journal"(
+	id_condition bigint,
+	id_jur bigint)
     RETURNS character varying
     LANGUAGE 'plpgsql'
     COST 100
@@ -55,28 +56,47 @@ begin
 					  	when	c0.type_condition_aggregate='ALL' then '(1=1)'
 					  	-- atomic conditions
 					  	when	c0.analytic_type_compare='EQUAL'	then 
-								'('||a.analytic_column_name||'='||(case when a.type_value='float' then cast(c0.analytic_value_float as character varying) else ''''||c0.analytic_value_text||'''' end)||' and '||a.analytic_column_name||' is not NULL)'
+								'('||jc.column_name||'='||(case when a.type_value='float' then cast(c0.analytic_value_float as character varying) else ''''||c0.analytic_value_text||'''' end)||' and '||jc.column_name||' is not NULL)'
 						when	c0.analytic_type_compare='NOT_EQUAL'	then 
-								'('||a.analytic_column_name||'<>'||(case when a.type_value='float' then cast(c0.analytic_value_float as character varying) else ''''||c0.analytic_value_text||'''' end)||' or '||a.analytic_column_name||' is NULL)'
+								'('||jc.column_name||'<>'||(case when a.type_value='float' then cast(c0.analytic_value_float as character varying) else ''''||c0.analytic_value_text||'''' end)||' or '||jc.column_name||' is NULL)'
 						when	c0.analytic_type_compare='LIKE'	then 
-								'('||a.analytic_column_name||' like '||''''||c0.analytic_value_text||''''||' and '||a.analytic_column_name||' is not NULL)'
+								'('||jc.column_name||' like '||''''||c0.analytic_value_text||''''||' and '||jc.column_name||' is not NULL)'
 						when	c0.analytic_type_compare='NOT_LIKE'	then 
-								'('||a.analytic_column_name||' not like '||''''||c0.analytic_value_text||''''||' or '||a.analytic_column_name||' is NULL)'
+								'('||jc.column_name||' not like '||''''||c0.analytic_value_text||''''||' or '||jc.column_name||' is NULL)'
 						when	c0.analytic_type_compare='IN'	then 
-								'('||a.analytic_column_name||' in '||c0.analytic_value_text||' and '||a.analytic_column_name||' is not NULL)'
+								'('||jc.column_name||' in '||c0.analytic_value_text||' and '||jc.column_name||' is not NULL)'
 						when	c0.analytic_type_compare='NOT_IN'	then 
-								'('||a.analytic_column_name||' not in '||c0.analytic_value_text||' or '||a.analytic_column_name||' is NULL)'
+								'('||jc.column_name||' not in '||c0.analytic_value_text||' or '||jc.column_name||' is NULL)'
 						when	c0.analytic_type_compare in ('>=','>','<=','<')	then 
-								'('||a.analytic_column_name||c0.analytic_type_compare||(case when a.type_value='float' then cast(c0.analytic_value_float as character varying) else ''''||c0.analytic_value_text||'''' end)||' and '||a.analytic_column_name||' is not NULL)'
+								'('||jc.column_name||c0.analytic_type_compare||(case when a.type_value='float' then cast(c0.analytic_value_float as character varying) else ''''||c0.analytic_value_text||'''' end)||' and '||jc.column_name||' is not NULL)'
 					  end)
+	from	public._config_conditions c0,
+			public._config_analytics a,
+			public._config_journal_columns jc
+	where	c0.id_condition=c.id_condition_dst and
+			a.id_analytic=c0.id_analytic and
+			jc.id_jur=$2 and 
+			jc.id_analytic=a.id_analytic and
+			c.sql_text is NULL and
+			(	c0.type_condition_aggregate='ALL' or
+				c0.type_condition_aggregate is NULL	);
+				
+	-- for journals who doesnt have some analytics -> replace with condition always TRUE = (1=1)
+	update	conditions c
+	set		sql_text='(1=1)'
 	from	public._config_conditions c0,
 			public._config_analytics a
 	where	c0.id_condition=c.id_condition_dst and
 			a.id_analytic=c0.id_analytic and
 			c.sql_text is NULL and
 			(	c0.type_condition_aggregate='ALL' or
-				c0.type_condition_aggregate is NULL	);
-	
+				c0.type_condition_aggregate is NULL	) and
+			-- this analytics dont exists in journal
+			not exists (	select 	1
+					   		from	public._config_journal_columns jc
+					   		where	jc.id_jur=$2 and 
+									jc.id_analytic=a.id_analytic	);
+						
 	-- iterate group conditions from bottom to top
 	flag_bool=TRUE;	
 	-- exists null values of sql_text?
@@ -131,5 +151,5 @@ begin
 end
 $BODY$;
 
-ALTER FUNCTION public."func_get_SQL_of_condition_id"(bigint)
+ALTER FUNCTION public."func_get_SQL_of_condition_id_for_journal"(bigint, bigint)
     OWNER TO postgres;

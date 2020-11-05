@@ -1,12 +1,11 @@
--- PROCEDURE: public.sp_load_data_to_the_journal_buffer()
+-- PROCEDURE: public.sp_load_data_to_the_journal_buffer(character varying, bigint, boolean)
 
--- DROP PROCEDURE public.sp_load_data_to_the_journal_buffer();
+-- DROP PROCEDURE public.sp_load_data_to_the_journal_buffer(character varying, bigint, boolean);
 
 CREATE OR REPLACE PROCEDURE public.sp_load_data_to_the_journal_buffer(
-	journal_name varchar(500),
+	journal_name character varying,
 	id_condition bigint,
-	flag_create_update_journal boolean DEFAULT FALSE
-)
+	flag_create_update_journal boolean DEFAULT false)
 LANGUAGE 'plpgsql'
 AS $BODY$
 DECLARE id_jur0 bigint;
@@ -106,6 +105,3 @@ begin
 	end if;
 end
 $BODY$;
-
-COMMENT ON PROCEDURE public.sp_load_data_to_the_journal_buffer()
-    IS 'This procedure runs scripts to fill journal buffer table from sources. Part of sources to load configured by condition_id.';

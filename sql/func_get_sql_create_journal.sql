@@ -1,8 +1,8 @@
--- FUNCTION: public.func_get_sql_create_buffer(bigint, integer)
+-- FUNCTION: public.func_get_sql_create_journal(bigint, integer)
 
--- DROP FUNCTION public.func_get_sql_create_buffer(bigint, integer);
+-- DROP FUNCTION public.func_get_sql_create_journal(bigint, integer);
 
-CREATE OR REPLACE FUNCTION public.func_get_sql_create_buffer(
+CREATE OR REPLACE FUNCTION public.func_get_sql_create_journal(
 	id_jur bigint,
 	flag_buffer integer DEFAULT 1)
     RETURNS character varying
@@ -59,5 +59,5 @@ begin
 end
 $BODY$;
 
-ALTER FUNCTION public.func_get_sql_create_buffer(bigint, integer)
+ALTER FUNCTION public.func_get_sql_create_journal(bigint, integer)
     OWNER TO postgres;
