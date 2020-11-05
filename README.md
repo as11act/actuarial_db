@@ -8,3 +8,5 @@ What is journal? - it's a table with union from sources for future calculations
 For example, in insurance exists issued policies journal or written premium.
 
 Database model created in pgModeler. 
+
+Actuarial database architecture for finance and actuarial calculations. Increment journals are contain all information of source data and the differences from prev points. All calculation logic constructed to calculate diff not full source data information. So, the project started from architecture of increment journals (insurance premium, losses, ... ) to architecture of actuarial models: reserves, cash-flow, maturity, sensitivity, and so on. IFRS4, IFRS17, non-life insurance.
