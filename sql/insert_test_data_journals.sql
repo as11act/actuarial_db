@@ -42,6 +42,10 @@ select	2,'d_opr2' union all
 select	2,'contract_id2' union all
 select	2,'risk_id2';
 
+insert into public.test_source_prem_data2
+select	sum_float+2000,d_opr+200,contract_id,risk_id
+from	public.test_source_prem_data1
+
 /*	link sources to journals	*/
 insert into public._config_journal_column_match_source_column
 select	(case 
