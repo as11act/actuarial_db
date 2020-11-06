@@ -11,6 +11,35 @@ CALL public.sp_check_and_correct_journal(
 	TRUE
 );
 
+select	*
+from	public._config_journal_columns
+
+SELECT public.func_get_column_name_of_source_by_id_column_of_journal(
+	3, 
+	2
+)
+
+SELECT public."func_get_SQL_of_condition_id_for_journal_for_source"(
+	1,--<id_condition bigint>, 
+	1,--<id_jur bigint>, 
+	2--<id_src0 bigint>
+)
+
+SELECT public."func_get_SQL_of_condition_id_for_journal_for_source"(
+	1, 
+	1, 
+	2
+)
+
+select	*
+from	public._config_journals_log
+
+select	*
+from	public._config_conditions
+
+select public."func_get_SQL_of_condition_id_for_journal"(1,1)
+--condition_id0
+
 SELECT public.func_get_sql_insert_buffer(
 	1, 
 	1, 
@@ -40,10 +69,12 @@ select	public.func_get_sql_hash_key_for_source(3, 2)
 
 CALL public.sp_load_data_to_the_journal_buffer(
 	'Insurance premium journal',--<journal_name character varying>, 
-	NULL, 
+	1, 
 	FALSE
 )
 
+select	*
+from	public.stage_insurance_premium_journal_buffer
 
 select	md5(coalesce(cast(date_operation as character varying),'cNULL')||coalesce(cast(id_contract as character varying),'cNULL')||coalesce(cast(id_risk as character varying),'cNULL')||coalesce(cast(prem_value as character varying),'cNULL'))
 from	public.stage_insurance_premium_journal_buffer

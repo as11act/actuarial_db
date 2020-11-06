@@ -15,6 +15,8 @@ DECLARE journal_stage_table_name0 character varying;
 DECLARE sql_text character varying DEFAULT '';
 DECLARE sql_list_cols character varying DEFAULT '';
 DECLARE id_src_prev bigint;
+DECLARE id_condition0 bigint;
+DECLARE sql_condition_prev character varying DEFAULT '';
 DECLARE db_name_prev character varying DEFAULT '';
 DECLARE schema_name_prev character varying DEFAULT '';
 DECLARE table_name_prev character varying DEFAULT '';
@@ -25,6 +27,8 @@ begin
 	journal_stage_table_name0=(select j.journal_stage_table_name from public._config_journals j where j.id_jur=$1);
 	-- so, buffer table is
 	journal_stage_table_name0=journal_stage_table_name0||'_buffer';
+	-- condition_id
+	id_condition0=(select c.condition_id from public._config_journals_log c where c.id_log=id_log0);
 	-- create list of cols
 	/*	loop on all journal columns	*/
 	for src_cols in
@@ -61,7 +65,7 @@ begin
 									-- it's first row of id_src -> insert into 
 									when id_src_prev is NULL then 'insert into '||journal_stage_table_name0||'('||sql_list_cols||') select '||src_cols.column_name_src
 									-- it's new row of id_src -> insert into 
-									when id_src_prev<>src_cols.id_src then ','||cast(id_src_prev as character varying)||' id_src,'||cast($2 as character varying)||' id_log,'||cast($3 as character varying)||' id_hash_log,'||sql_hash_key_prev||' hash_key from '||db_name_prev||'.'||schema_name_prev||'.'||table_name_prev||'; insert into '||journal_stage_table_name0||'('||sql_list_cols||') select '||src_cols.column_name_src
+									when id_src_prev<>src_cols.id_src then ','||cast(id_src_prev as character varying)||' id_src,'||cast($2 as character varying)||' id_log,'||cast($3 as character varying)||' id_hash_log,'||sql_hash_key_prev||' hash_key from '||db_name_prev||'.'||schema_name_prev||'.'||table_name_prev||' where '||sql_condition_prev||'; insert into '||journal_stage_table_name0||'('||sql_list_cols||') select '||src_cols.column_name_src
 									-- other cases
 									else ','||src_cols.column_name_src
 								end	);			
@@ -72,11 +76,13 @@ begin
 		schema_name_prev=src_cols.schema_name;
 		table_name_prev=src_cols.table_name;
 		sql_hash_key_prev=public.func_get_sql_hash_key_for_source(id_hash_log0, src_cols.id_src);
+		-- for conditon NULL replace with full condition 1=1
+		sql_condition_prev=coalesce(public."func_get_SQL_of_condition_id_for_journal_for_source"(id_condition0, id_jur0, id_src_prev),'(1=1)');
 	end loop;
 	-- truncate buffer table first
 	sql_text='truncate table '||journal_stage_table_name0||'; '||sql_text;
 	-- for the last source we should add technical columns and section from
-	sql_text=sql_text||','||cast(src_cols.id_src as character varying)||' id_src,'||cast($2 as character varying)||' id_log,'||cast($3 as character varying)||' id_hash_log,'||sql_hash_key_prev||' hash_key from '||db_name_prev||'.'||schema_name_prev||'.'||table_name_prev||';';
+	sql_text=sql_text||','||cast(src_cols.id_src as character varying)||' id_src,'||cast($2 as character varying)||' id_log,'||cast($3 as character varying)||' id_hash_log,'||sql_hash_key_prev||' hash_key from '||db_name_prev||'.'||schema_name_prev||'.'||table_name_prev||' where '||sql_condition_prev||';';
 	
 	return sql_text;
 end
