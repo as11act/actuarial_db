@@ -22,6 +22,7 @@ begin
 	CALL public.sp_check_the_condition(journal_name,id_condition0);
 	-- need to add some other checks
 	-- a) match between source and journal columns (full or not)
+	CALL public.sp_check_columns_journal_srouces($1);
 	-- b) that source table exists with particular columns
 	
 	-- check hash and correct buffer of journal
@@ -40,5 +41,9 @@ begin
 	sql_text=(select public.func_get_sql_insert_buffer(id_jur0,id_log0,id_hash_log0));	
 	-- insert into buffer
 	EXECUTE sql_text;
+	-- update flag in log, that buffer was loaded
+	update	public._config_journals_log
+	set		flag_was_loaded_to_journal_buffer=TRUE
+	where	id_log=id_log0;
 end
 $BODY$;

@@ -11,6 +11,8 @@ CALL public.sp_check_and_correct_journal(
 	TRUE
 );
 
+
+
 select	*
 from	public._config_journal_columns
 
@@ -30,6 +32,8 @@ SELECT public."func_get_SQL_of_condition_id_for_journal_for_source"(
 	1, 
 	2
 )
+
+
 
 select	*
 from	public._config_journals_log
@@ -65,6 +69,15 @@ select	* from public._config_journal_hash_log_columns
 select	* from public._config_sources
 select	* from public._config_journals_log
 select	* from public.stage_insurance_premium_journal_buffer
+select	* from public._config_journal_column_match_source_column
+
+delete from public._config_journal_column_match_source_column where	id_col_src=1
+
+CALL public.sp_check_columns_journal_srouces(
+	'Insurance premium journal'
+)
+
+insert into _config_journal_column_match_source_column select 1,1
 
 select	public.func_get_sql_list_columns_of_journal(1,FALSE)
 select	public.func_get_sql_list_columns_of_journal(1,TRUE)
