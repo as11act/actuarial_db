@@ -19,6 +19,24 @@ DECLARE table_name_prev character varying DEFAULT '';
 DECLARE sql_hash_key_prev character varying DEFAULT '';
 DECLARE src_cols RECORD;
 begin
+	-- 1) create temporty tables with hash_key and number
+	create temp table tmp_target (_pk_num bigint not null primary key,hash_key character varying(32) not null,rn bigint not null );
+	create temp table tmp_buffer (_pk_num bigint not null primary key,hash_key character varying(32) not null,rn bigint not null );
+	
+	-- insert data to target
+	insert into tmp_target
+	select	j._pk_num,j.hash_key,row_number() over(partition by j.hash_key order by j._pk_num) rn
+	from	public.stage_insurance_premium_journal j
+	where	flag_technical_storno=0 and
+			flag_storno_by_others=0 and
+			-- condition from id_log
+			(1=1);
+			
+	-- insert data from buffer
+	insert into tmp_target
+	select	j._pk_num,j.hash_key,row_number() over(partition by j.hash_key order by j._pk_num) rn
+	from	public.stage_insurance_premium_journal_buffer j
+	
 	-- journal stage table
 	journal_stage_table_name0=(select j.journal_stage_table_name from public._config_journals j where j.id_jur=$1);
 	-- so, buffer table is
