@@ -1,6 +1,6 @@
--- FUNCTION: public.func_get_sql_create_journal(bigint, integer)
+-- FUNCTION: public.func_get_sql_new_columns(bigint, integer)
 
--- DROP FUNCTION public.func_get_sql_create_journal(bigint, integer);
+-- DROP FUNCTION public.func_get_sql_new_columns(bigint, integer);
 
 CREATE OR REPLACE FUNCTION public.func_get_sql_new_columns(
 	id_jur bigint,
@@ -58,13 +58,17 @@ begin
 			 		when j.column_name='_pk_num_link_from_storno'
 			   			then	'bigint references '||journal_stage_table_name0||'(_pk_num)'			 
 			 		when j.column_name='hash_key'
-			   			then	'character varying(32) NOT NULL DEFAULT '''	
+			   			then	'character varying(32) NOT NULL DEFAULT '''''	
 			 		when j.column_name='id_hash_log'
 			   			then	'bigint references public._config_journals_hash_log(id_hash_log)'				 
 			 		when j.column_name='id_log'
 			   			then	'bigint references public._config_journals_log(id_log)'
 			 		when j.column_name='id_src'
-			   			then	'bigint references public._config_sources(id_src)'			 
+			   			then	'bigint references public._config_sources(id_src)'		
+			 		when j.column_name='flag_storno_by_other'
+			   			then	'integer not NULL DEFAULT 0'		
+			 		when j.column_name='storned_by_id_log'
+			   			then	'bigint references public._config_journals_log(id_log)'					 
 			  	end	) column_name_with_type,
 				j.column_name
 		from	(	select	j1.column_name
@@ -85,8 +89,10 @@ begin
 		tmp_result=tmp_result||(case when tmp_result='' then '' else '; ' end)||'alter table '||journal_stage_table_name0||' add '||cols.column_name_with_type;
 	end loop;
 	-- return result
+	tmp_result=tmp_result||';';
 	return tmp_result;
 end
 $BODY$;
 
-
+ALTER FUNCTION public.func_get_sql_new_columns(bigint, integer)
+    OWNER TO postgres;

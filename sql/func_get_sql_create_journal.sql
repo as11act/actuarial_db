@@ -47,7 +47,7 @@ begin
 	tmp_cols=tmp_cols||',id_log bigint not null references public._config_journals_log(id_log),id_src bigint not null references public._config_sources(id_src)';
 	if $2=0 then
 		-- not buffer
-		tmp_cols=tmp_cols||',flag_technical_storno integer NOT NULL DEFAULT 0,_pk_num_link_from_storno bigint references '||tmp_tb_name||'(_pk_num)';
+		tmp_cols=tmp_cols||',flag_technical_storno integer NOT NULL DEFAULT 0,_pk_num_link_from_storno bigint references '||tmp_tb_name||'(_pk_num),flag_storno_by_other integer not NULL DEFAULT 0,storned_by_id_log bigint references public._config_journals_log(id_log)';
 	else
 		-- buffer
 		tmp_tb_name=tmp_tb_name||'_buffer';		

@@ -45,6 +45,9 @@ SELECT public.func_get_sql_insert_buffer(
 	1, 
 	3
 )
+
+
+
 insert into stage_insurance_premium_journal_buffer(date_operation,id_contract,id_risk,prem_value,id_src,id_log,id_hash_log,hash_key) 
 select d_opr,contract_id,risk_id,sum_float,1 id_src,1 id_log,3 id_hash_log,md5(coalesce(cast(d_opr as character varying),'cNULL')||coalesce(cast(contract_id as character varying),'cNULL')||coalesce(cast(risk_id as character varying),'cNULL')||coalesce(cast(sum_float as character varying),'cNULL')) hash_key from db_journals.public.test_source_prem_data1; 
 insert into stage_insurance_premium_journal_buffer(date_operation,id_contract,id_risk,prem_value,id_src,id_log,id_hash_log,hash_key) 
@@ -60,6 +63,15 @@ delete from _config_journals_hash_log
 select	* from public._config_journals_hash_log
 select	* from public._config_journal_hash_log_columns
 select	* from public._config_sources
+select	* from public._config_journals_log
+select	* from public.stage_insurance_premium_journal_buffer
+
+select	public.func_get_sql_list_columns_of_journal(1,FALSE)
+select	public.func_get_sql_list_columns_of_journal(1,TRUE)
+select replace(public."func_get_SQL_of_condition_id_for_journal"(1, 1),'''','''''')
+SELECT public.func_get_sql_insert_journal(1, 23)
+
+
 
 select	public.func_get_sql_hash_key(3)
 --"md5(coalesce(cast(date_operation as character varying),'cNULL')||coalesce(cast(id_contract as character varying),'cNULL')||coalesce(cast(id_risk as character varying),'cNULL')||coalesce(cast(prem_value as character varying),'cNULL'))"
@@ -71,10 +83,20 @@ CALL public.sp_load_data_to_the_journal_buffer(
 	'Insurance premium journal',--<journal_name character varying>, 
 	1, 
 	FALSE
-)
+);
 
-select	*
-from	public.stage_insurance_premium_journal_buffer
+CALL public.sp_load_data_from_buffer_to_journal(
+	'Insurance premium journal',--<journal_name character varying>, 
+	FALSE
+);
+
+
+
+select	*	from	public.stage_insurance_premium_journal_buffer
+select	* 	from 	public.stage_insurance_premium_journal order by _pk_num
+
+select	sum(prem_value)	from	public.stage_insurance_premium_journal_buffer
+select	sum(prem_value) 	from 	public.stage_insurance_premium_journal
 
 select	md5(coalesce(cast(date_operation as character varying),'cNULL')||coalesce(cast(id_contract as character varying),'cNULL')||coalesce(cast(id_risk as character varying),'cNULL')||coalesce(cast(prem_value as character varying),'cNULL'))
 from	public.stage_insurance_premium_journal_buffer
@@ -84,6 +106,18 @@ CALL public.sp_check_create_the_hash_of_journal(
 	0, 
 	TRUE
 );
+
+select	*
+from	public.test_source_prem_data1
+
+--select	*
+delete from public.test_source_prem_data2
+where	risk_id2='risk2' and contract_id2='contract3' and d_opr2='2020-07-20'
+
+insert into test_source_prem_data2 (sum_float2,d_opr2,contract_id2,risk_id2)
+select	prem_value,date_operation,id_contract,id_risk
+from	stage_insurance_premium_journal
+where	flag_storno_by_other=1
 
 alter table stage_insurance_premium_journal add id_hash_log bigint references public._config_journals_hash_log(id_hash_log); 
 alter table stage_insurance_premium_journal add id_log bigint references public._config_journals_log(id_log)
