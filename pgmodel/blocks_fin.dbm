@@ -3,7 +3,7 @@
 CAUTION: Do not modify this file unless you know what you are doing.
          Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="0.9.3-beta1" use-changelog="false" last-position="0,0" last-zoom="1" max-obj-count="4"
+<dbmodel pgmodeler-ver="0.9.3-beta1" use-changelog="false" last-position="0,0" last-zoom="1" max-obj-count="6"
 	 default-schema="public" default-owner="postgres">
 <database name="new_database" is-template="false" allow-conns="true">
 </database>
@@ -11,7 +11,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <schema name="public" layer="0" fill-color="#e1e1e1" sql-disabled="true">
 </schema>
 
-<table name="_finance_blocks" layer="0" collapse-mode="2" max-obj-count="3" z-value="0">
+<table name="_finance_blocks" layer="0" collapse-mode="2" max-obj-count="4" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
 	<position x="120" y="140"/>
@@ -24,6 +24,10 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</column>
 	<column name="id_function" not-null="true">
 		<type name="bigint" length="0"/>
+	</column>
+	<column name="opertaion_mode" not-null="true">
+		<type name="varchar" length="500"/>
+		<comment><![CDATA[How to operate: manual, auto (when data come), on condition ...]]></comment>
 	</column>
 	<constraint name="_finance_blocks_pk" type="pk-constr" table="public._finance_blocks">
 		<columns names="id_block" ref-type="src-columns"/>
@@ -46,7 +50,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</constraint>
 </table>
 
-<table name="_finance_function_pins" layer="0" collapse-mode="2" max-obj-count="6" z-value="0">
+<table name="_finance_function_pins" layer="0" collapse-mode="2" max-obj-count="7" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
 	<position x="860" y="160"/>
@@ -65,6 +69,10 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</column>
 	<column name="type_in_out" not-null="true">
 		<type name="varchar" length="3"/>
+	</column>
+	<column name="pin_value_type" not-null="true">
+		<type name="varchar" length="500"/>
+		<comment><![CDATA[Type of value pin = finance (flow/reserve); number array (dim 1,2,..); string array (dim 1,2, ...); bus]]></comment>
 	</column>
 	<constraint name="_finance_function_pins_pk" type="pk-constr" table="public._finance_function_pins">
 		<columns names="id_function_pin" ref-type="src-columns"/>
@@ -90,6 +98,25 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</constraint>
 </table>
 
+<table name="_finance_blocks_net" layer="0" collapse-mode="2" max-obj-count="3" z-value="0">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<position x="520" y="360"/>
+	<column name="id_net" not-null="true"
+	 identity-type="ALWAYS">
+		<type name="bigint" length="0"/>
+	</column>
+	<column name="id_block_pin_src" not-null="true">
+		<type name="bigint" length="0"/>
+	</column>
+	<column name="id_block_pin_dst" not-null="true">
+		<type name="bigint" length="0"/>
+	</column>
+	<constraint name="_finance_blocks_net_pk" type="pk-constr" table="public._finance_blocks_net">
+		<columns names="id_net" ref-type="src-columns"/>
+	</constraint>
+</table>
+
 <constraint name="_finance_blocks_id_function_of_block" type="fk-constr" comparison-type="MATCH FULL"
 	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public._finance_functions" table="public._finance_blocks">
 	<columns names="id_function" ref-type="src-columns"/>
@@ -108,6 +135,18 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<columns names="id_block" ref-type="dst-columns"/>
 </constraint>
 
+<constraint name="fk_finance_blocks_net_src" type="fk-constr" comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public._finance_block_pins" table="public._finance_blocks_net">
+	<columns names="id_block_pin_src" ref-type="src-columns"/>
+	<columns names="id_block_pin" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="fk_finance_blocks_net_dst" type="fk-constr" comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public._finance_block_pins" table="public._finance_blocks_net">
+	<columns names="id_block_pin_dst" ref-type="src-columns"/>
+	<columns names="id_block_pin" ref-type="dst-columns"/>
+</constraint>
+
 <relationship name="rel__finance_blocks__finance_functions" type="relfk" layer="0"
 	 src-table="public._finance_blocks"
 	 dst-table="public._finance_functions" reference-fk="_finance_blocks_id_function_of_block"
@@ -121,6 +160,16 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <relationship name="rel__finance_block_pins__finance_blocks" type="relfk" layer="0"
 	 src-table="public._finance_block_pins"
 	 dst-table="public._finance_blocks" reference-fk="_finance_block_pins_id_block"
+	 src-required="false" dst-required="true"/>
+
+<relationship name="rel__finance_blocks_net__finance_block_pins" type="relfk" layer="0"
+	 src-table="public._finance_blocks_net"
+	 dst-table="public._finance_block_pins" reference-fk="fk_finance_blocks_net_src"
+	 src-required="false" dst-required="true"/>
+
+<relationship name="rel__finance_blocks_net__finance_block_pins1" type="relfk" layer="0"
+	 src-table="public._finance_blocks_net"
+	 dst-table="public._finance_block_pins" reference-fk="fk_finance_blocks_net_dst"
 	 src-required="false" dst-required="true"/>
 
 </dbmodel>
