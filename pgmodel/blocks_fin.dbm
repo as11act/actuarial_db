@@ -3,7 +3,7 @@
 CAUTION: Do not modify this file unless you know what you are doing.
          Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="0.9.3-beta1" use-changelog="false" last-position="0,0" last-zoom="1" max-obj-count="10"
+<dbmodel pgmodeler-ver="0.9.3-beta1" use-changelog="false" last-position="0,0" last-zoom="1" max-obj-count="9"
 	 default-schema="public" default-owner="postgres">
 <database name="new_database" is-template="false" allow-conns="true">
 </database>
@@ -82,7 +82,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</constraint>
 </table>
 
-<table name="_finance_block_pins" layer="0" collapse-mode="2" max-obj-count="3" z-value="0">
+<table name="_finance_block_pins" layer="0" collapse-mode="2" max-obj-count="6" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
 	<position x="140" y="340"/>
@@ -95,6 +95,12 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</column>
 	<column name="pin_number" not-null="true">
 		<type name="integer" length="0"/>
+	</column>
+	<column name="flag_storage" not-null="true" default-value="FALSE">
+		<type name="boolean" length="0"/>
+	</column>
+	<column name="id_storage">
+		<type name="bigint" length="0"/>
 	</column>
 	<constraint name="_finance_block_pins_pk" type="pk-constr" table="public._finance_block_pins">
 		<columns names="id_block_pin" ref-type="src-columns"/>
@@ -148,7 +154,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="_finance_block_parametres" layer="0" collapse-mode="2" max-obj-count="6" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="140" y="540"/>
+	<position x="140" y="600"/>
 	<column name="id_block_parameter" not-null="true"
 	 identity-type="ALWAYS">
 		<type name="bigint" length="0"/>
@@ -170,29 +176,10 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</constraint>
 </table>
 
-<table name="_finance_config_storage_block_pins" layer="0" collapse-mode="2" max-obj-count="3" z-value="0">
-	<schema name="public"/>
-	<role name="postgres"/>
-	<position x="520" y="540"/>
-	<column name="id_storage_pin" not-null="true"
-	 identity-type="ALWAYS">
-		<type name="bigint" length="0"/>
-	</column>
-	<column name="id_storage" not-null="true">
-		<type name="bigint" length="0"/>
-	</column>
-	<column name="id_block_pin" not-null="true">
-		<type name="bigint" length="0"/>
-	</column>
-	<constraint name="_finance_config_storage_block_pins_pk" type="pk-constr" table="public._finance_config_storage_block_pins">
-		<columns names="id_storage_pin" ref-type="src-columns"/>
-	</constraint>
-</table>
-
 <table name="_finance_config_storage_tables" layer="0" collapse-mode="2" max-obj-count="4" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="1000" y="540"/>
+	<position x="580" y="520"/>
 	<column name="id_storage" not-null="true">
 		<type name="bigint" length="0"/>
 	</column>
@@ -228,6 +215,12 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<columns names="id_block" ref-type="dst-columns"/>
 </constraint>
 
+<constraint name="fk_finance_block_pins_id_storage" type="fk-constr" comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public._finance_config_storage_tables" table="public._finance_block_pins">
+	<columns names="id_storage" ref-type="src-columns"/>
+	<columns names="id_storage" ref-type="dst-columns"/>
+</constraint>
+
 <constraint name="fk_finance_blocks_net_src" type="fk-constr" comparison-type="MATCH FULL"
 	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public._finance_block_pins" table="public._finance_blocks_net">
 	<columns names="id_block_pin_src" ref-type="src-columns"/>
@@ -250,18 +243,6 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public._finance_blocks" table="public._finance_block_parametres">
 	<columns names="id_block" ref-type="src-columns"/>
 	<columns names="id_block" ref-type="dst-columns"/>
-</constraint>
-
-<constraint name="fk_finance_config_storage_block_pins_id_storage" type="fk-constr" comparison-type="MATCH FULL"
-	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public._finance_config_storage_tables" table="public._finance_config_storage_block_pins">
-	<columns names="id_storage" ref-type="src-columns"/>
-	<columns names="id_storage" ref-type="dst-columns"/>
-</constraint>
-
-<constraint name="fk_finance_config_storage_block_pins_id_block_pin" type="fk-constr" comparison-type="MATCH FULL"
-	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public._finance_block_pins" table="public._finance_config_storage_block_pins">
-	<columns names="id_block_pin" ref-type="src-columns"/>
-	<columns names="id_block_pin" ref-type="dst-columns"/>
 </constraint>
 
 <relationship name="rel__finance_blocks__finance_functions" type="relfk" layer="0"
@@ -299,14 +280,9 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 dst-table="public._finance_blocks" reference-fk="fk_finance_block_parametres_id_block"
 	 src-required="false" dst-required="true"/>
 
-<relationship name="rel__finance_config_storage_block_pins__finance_config_storage_" type="relfk" layer="0"
-	 src-table="public._finance_config_storage_block_pins"
-	 dst-table="public._finance_config_storage_tables" reference-fk="fk_finance_config_storage_block_pins_id_storage"
-	 src-required="false" dst-required="true"/>
-
-<relationship name="rel__finance_config_storage_block_pins__finance_block_pins" type="relfk" layer="0"
-	 src-table="public._finance_config_storage_block_pins"
-	 dst-table="public._finance_block_pins" reference-fk="fk_finance_config_storage_block_pins_id_block_pin"
-	 src-required="false" dst-required="true"/>
+<relationship name="rel__finance_block_pins__finance_config_storage_tables" type="relfk" layer="0"
+	 src-table="public._finance_block_pins"
+	 dst-table="public._finance_config_storage_tables" reference-fk="fk_finance_block_pins_id_storage"
+	 src-required="false" dst-required="false"/>
 
 </dbmodel>
